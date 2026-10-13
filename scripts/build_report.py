@@ -76,6 +76,8 @@ def main():
         row = [r for r in table if r['speed_kn'] == '6'][0]
         six[ax] = dict(D=float(row[f'{ax}_drag_N']), P=float(row[f'{ax}_power_W']), Cd=float(row[f'{ax}_Cd']),
                        A=fit[ax]['A_proj_m2'], cdmin=fit[ax]['Cd_runs_min'], cdmax=fit[ax]['Cd_runs_max'])
+        rm = R.get((ax, 'medium', 6.0)) or R.get((ax, 'coarse', 6.0))
+        six[ax]['pf'] = f"{rm['D_pressure'] / rm['D'] * 100:.0f} % / {rm['D_viscous'] / rm['D'] * 100:.0f} %"
 
     # ---- grid study
     grid_rows = []
@@ -173,8 +175,8 @@ def main():
     tabs = []
     for ax in AXES:
         a = A[ax]
-        sl_imgs = ''.join(image(s, f'{AXN[ax][0]} 6 kn: mid-plane slice. Top: speed |U|/V with streamlines. Bottom: pressure coefficient Cp.') for s in a['slices'])
-        sl_vids = ''.join(video(v, f'{AXN[ax][0]} 6 kn: particles carried by the in-plane velocity on a mid-plane.') for v in a['vsl'])
+        sl_imgs = ''.join(image(s, f'{AXN[ax][0]} 6 kn: mid-plane slice. Top: speed |U|/V with streamlines. Bottom: pressure coefficient Cp.', 'wide') for s in a['slices'])
+        sl_vids = ''.join(video(v, f'{AXN[ax][0]} 6 kn: particles carried by the in-plane velocity on a mid-plane.', 'wide') for v in a['vsl'])
         tabs.append(f'''
       <div class="tabpanel" id="tab-{ax}" role="tabpanel" aria-labelledby="tb-{ax}" {'hidden' if ax != 'surge' else ''}>
         <div class="grid2">
@@ -196,7 +198,7 @@ def main():
         <dl>
           <div><dt>Hydraulic power</dt><dd>{six[ax]['P'] / 1000:,.1f} kW</dd></div>
           <div><dt>Cd (A = {six[ax]['A']:.2f} m²)</dt><dd>{six[ax]['Cd']:.3f}</dd></div>
-          <div><dt>Cd range, coarse runs</dt><dd>{six[ax]['cdmin']:.3f}–{six[ax]['cdmax']:.3f}</dd></div>
+          <div><dt>Pressure / friction</dt><dd>{six[ax]['pf']}</dd></div>
         </dl>
       </article>''' for ax in AXES)
 

@@ -136,6 +136,7 @@ def anim_slices(run, meta, vol, body, V, a, ext, lo, hi, tag, title):
         vel = lambda q: np.c_[iu(q[:, ::-1]), iv(q[:, ::-1])]
         figw = 16; fig, ax = plt.subplots(figsize=(figw, figw * asp + 1.0), dpi=120, layout='constrained')
         cs_ = ax.contourf(xh, yv, F, levels=np.linspace(0, 1.3, 65), cmap='turbo', extend='both')
+        ax.contourf(xh, yv, M.astype(float), levels=[0.5, 1.5], colors=['#9aa3ad'], zorder=4)  # body interior
         for p in polys: ax.add_patch(Polygon(pmap(p), closed=True, fc='#9aa3ad', ec='black', lw=1.2, zorder=5))
         cb = fig.colorbar(cs_, ax=ax, shrink=0.95, pad=0.01, aspect=18); cb.set_label('|U| / V', fontsize=12); cb.set_ticks(np.linspace(0, 1.3, 6))
         ax.set_xlim(xh[0], xh[-1]); ax.set_ylim(yv[0], yv[-1]); ax.set_aspect('equal')

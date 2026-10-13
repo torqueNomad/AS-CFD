@@ -64,7 +64,8 @@ These are thin wrappers that source the OpenFOAM v2512 environment. `mesh_case.s
 - Reads `force.dat`, which holds the pressure and viscous force on the body each iteration. It projects the force on the free-stream direction to get the drag D.
 - Averages D over the **last 30 %** of iterations. The standard deviation over the same window is reported as `drag_std_N`.
 - Computes Cd = D / (½ ρ V² A_proj), P = D·V and Re = V·L_axis/ν.
-- Fits Cd = c0 + c1·log10(Re) to each axis's speed sweep. It multiplies by the grid correction (medium-mesh D / coarse-mesh D at 6 kn) and evaluates the fit from 0.5 to 6 kn in 0.5 kn steps.
+- Fits Cd = c0 + c1·log10(Re) to the surge and sway speed sweeps. For heave it uses a constant Cd equal to the mean of the four runs, because the heave Cd scatters ±5 % between speeds with no Reynolds trend (the separated wake wanders in the steady solver; drift up to 8 % within the 4 kn run).
+- Multiplies by the grid correction: medium-mesh Cd / coarse-mesh fitted Cd, both at 6 kn (surge −4.8 %, sway −1.4 %, heave −6.7 %). It then evaluates the result from 0.5 to 6 kn in 0.5 kn steps.
 - Writes the CSV and JSON tables and the plots.
 
 ### `openfoam_case_example/`
@@ -87,8 +88,8 @@ A copy of the dictionaries (`system/`, `constant/`, `0.orig/`) of the surge, 6 k
 | A11 | **Inflow turbulence intensity 1 %, eddy-viscosity ratio 10.** | Calm sea and tow-tank-like conditions, with little effect on drag. |
 | A12 | **Sway and heave flows are unsteady in reality** (vortex shedding). The steady solver shows force oscillations, so the reported drag is the average over the last 30 % of iterations and the spread is listed as `drag_std_N`. | Steady RANS on bluff cross-flow captures the mean drag only approximately. URANS or DES would be needed for shedding forces. |
 | A13 | **Hydraulic power = drag × speed** (power delivered to the water). | Shaft or electrical power = P / (propulsive efficiency × motor efficiency), typically ÷0.3–0.6 for small thrusters. |
-| A14 | **Intermediate speeds come from a Cd fit.** CFD was run at 1, 2, 4 and 6 kn. Other speeds come from Cd = c0 + c1·log10(Re) per axis. | Cd varies smoothly and weakly with Re at these Re. The fit error at the computed points is listed in the report. |
-| A15 | **Grid correction.** The speed sweep uses the coarse mesh, scaled by the medium/coarse drag ratio at 6 kn for each axis. A fine mesh was run for surge. | Limited by the 4-core machine. The coarse, medium and fine spread is reported as discretisation uncertainty. |
+| A14 | **Intermediate speeds come from a Cd fit.** CFD was run at 1, 2, 4 and 6 kn. Other speeds come from Cd = c0 + c1·log10(Re) (surge, sway) or a constant mean Cd (heave). | Cd varies smoothly and weakly with Re at these Re. The heave run-to-run scatter (Cd 0.627–0.698) is solver noise, not a trend. |
+| A15 | **Grid correction.** The speed sweep uses the coarse mesh, scaled by medium-mesh Cd / coarse fitted Cd at 6 kn for each axis. A fine mesh (2.19 M cells) was run for surge. | Limited by the 4-core machine. The coarse, medium and fine spread is reported as discretisation uncertainty. |
 | A16 | **Domain blockage** is 0.6 % (surge), 2.3 % (sway) and 3.7 % (heave), with slip side walls. | Small. Not corrected, and it may over-predict sway and heave drag by up to about 3–5 %. |
 | A17 | **Only the body's own drag.** No thrusters, appendages, tether or cable, or interaction effects. | These are not in the CAD. |
 
@@ -106,3 +107,8 @@ A copy of the dictionaries (`system/`, `constant/`, `0.orig/`) of the surge, 6 k
 - `results/figures/yplus/yplus_<axis>_<mesh>_<kn>kn.png`: y+ contours on the body at 1 and 6 kn.
 
 How to read it: wall functions are designed for 30 < y+ < 300, and `nutUSpaldingWallFunction` (Spalding's continuous law of the wall) also stays valid in the buffer and viscous regions. y+ rises roughly in proportion to speed. At 6 kn in sway, part of the windward face exceeds y+ 300. At Re about 4×10⁶ the log layer extends beyond y+ 300, so this is acceptable, and the medium-mesh run (cells 25 % smaller) quantifies its effect on drag.
+
+## 6. Flow visualisation and report
+- `scripts/visualize.py`: interpolates the solution onto fine uniform grids (about 4.5 M points in 3-D, ≤1 cm spacing on slices) and integrates streamlines with adaptive Runge-Kutta 4-5. It writes 3-D streamline views (parallel-row seeding for surge, rings for sway and heave), mid-plane slices (speed and Cp with streamlines) and four-view Cp images. These are display only and do not change any result.
+- `scripts/animate.py`: makes MP4 animations: particles moving along the 3-D streamlines at their true relative speed (slowed ×10, seamless loop), particles with trails advected on each mid-plane, and a rotating Cp view. Particles follow the steady (time-averaged) field, not unsteady shedding.
+- `scripts/build_report.py` + `scripts/report_template.html`: build the HTML report in `report/` (MCS Oil design system) from `results/`.

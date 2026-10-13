@@ -34,7 +34,7 @@
   --accent: #f7941d; --accent-strong: #ffa63e; --accent-soft: #2a1d0c; --link: #7faeba; --grid: #2a3b40; --axis: #6c8086;
   --s-surge: #00879f; --s-sway: #d9730a; --s-heave: #7158b8; color-scheme: dark; }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
 a { color: var(--link); }
 h1, h2, h3 { font-family: var(--font-display); color: var(--heading); line-height: 1.08; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
 .eyebrow { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-strong); }
@@ -63,7 +63,7 @@ nav.toc a:hover, nav.toc a:focus-visible { color: var(--heading); border-bottom-
 
 main { max-width: 1100px; margin: 0 auto; padding-inline: 16px; padding-block: 8px 64px; }
 section { padding-block: 48px 8px; scroll-margin-top: 48px; }
-section > h2 { font-size: clamp(1.6rem, 3vw, 2.25rem); font-weight: 600; }
+section > h2 { font-size: clamp(1.6rem, 3vw, 2.25rem); font-weight: 600; margin-bottom: 14px; }
 h3 { font-size: 1.3rem; font-weight: 600; margin: 32px 0 10px; }
 p { margin: 0 0 14px; max-width: 72ch; }
 .lead { font-size: 1.125rem; color: var(--muted); max-width: 70ch; }
@@ -309,7 +309,7 @@ footer { border-top: 1px solid var(--border); margin-top: 48px; padding-top: 18p
   let q = 'D', scale = 'log';
   const col = a => getComputedStyle(document.documentElement).getPropertyValue('--s-' + a).trim();
   const val = (a, i) => { const d = DATA.curves[a].D[i], k = DATA.curves[a].kn[i]; return q === 'D' ? d : d * k * KN; };
-  const fmt = v => v >= 1e4 ? (v / 1000).toFixed(1) + ' k' : v >= 1000 ? (v / 1000).toFixed(2) + ' k' : v >= 10 ? v.toFixed(0) : v.toFixed(1);
+  const fmt = v => v >= 1000 ? (v / 1000).toLocaleString('en', { maximumFractionDigits: 1 }) + 'k' : v.toLocaleString('en', { maximumFractionDigits: 1 });
   const NS = 'http://www.w3.org/2000/svg';
   const el = (t, at, p) => { const e = document.createElementNS(NS, t); for (const k in at) e.setAttribute(k, at[k]); (p || svg).appendChild(e); return e; };
   function draw() {
@@ -335,7 +335,7 @@ footer { border-top: 1px solid var(--border); margin-top: 48px; padding-top: 18p
     const yl = el('text', { x: 16, y: (m.t + H - m.b) / 2, 'text-anchor': 'middle', transform: `rotate(-90 16 ${(m.t + H - m.b) / 2})` }); yl.textContent = unit;
     AX.forEach(a => {
       const c = DATA.curves[a]; let d = '';
-      c.kn.forEach((k, i) => { if (k === 0 && scale === 'log') return; d += (d ? 'L' : 'M') + x(k).toFixed(1) + ',' + y(val(a, i)).toFixed(1); });
+      c.kn.forEach((k, i) => { if (scale === 'log' ? k < 0.3 : false) return; d += (d ? 'L' : 'M') + x(k).toFixed(1) + ',' + y(val(a, i)).toFixed(1); });
       el('path', { d, fill: 'none', stroke: col(a), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
       c.pts.forEach(([k, D]) => { const v = q === 'D' ? D : D * k * KN; el('circle', { cx: x(k), cy: y(v), r: 5, fill: col(a), stroke: 'var(--surface)', 'stroke-width': 2 }); });
       const last = c.kn.length - 1; el('text', { x: x(6) + 8, y: y(val(a, last)) + 4, style: `fill: var(--text)` }).textContent = NAME[a];

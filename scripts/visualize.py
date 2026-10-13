@@ -65,7 +65,7 @@ def image_grid(lo, hi, npts):
 
 
 def section_polys(body, normal, i, j):
-    s = body.slice(normal=normal, origin=(0, 0, 0)).strip()
+    s = body.slice(normal=normal, origin=(0, 0, 0)).strip(join=True)
     polys = []
     for k in range(s.n_cells):
         p = s.get_cell(k).points
@@ -163,6 +163,7 @@ def main(run):
             cs_ = ax_.contourf(xh, yv, F, levels=np.linspace(*clim, 65), cmap=cmap, extend='both')
             ax_.streamplot(xh, yv, np.where(msk, 0, Ux), np.where(msk, 0, Uy), density=(3.2, 1.6) if horiz else (1.6, 3.2),
                            color='white', linewidth=0.6, arrowsize=0.7)
+            ax_.contourf(xh, yv, msk.astype(float), levels=[0.5, 1.5], colors=['#9aa3ad'], zorder=4)  # body interior
             for p in polys:
                 ax_.add_patch(Polygon(pmap(p), closed=True, fc='#9aa3ad', ec='black', lw=1.2, zorder=5))
             cb = fig.colorbar(cs_, ax=ax_, shrink=0.95, pad=0.01, aspect=18); cb.set_label(lbl, fontsize=13)
