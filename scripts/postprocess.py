@@ -8,6 +8,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'results'); FIG = os.path.join(OUT, 'figures'); os.makedirs(FIG, exist_ok=True)
 KN = 0.514444
 AXES = ['surge', 'sway', 'heave']
+# heave: steady-RANS Cd scatters +-5 % between speeds with no Re trend (wandering separated wake)
+CONST_CD = {'heave'}
 COL = {'surge': '#1f77b4', 'sway': '#d62728', 'heave': '#2ca02c'}
 
 
@@ -60,11 +62,14 @@ def main():
         if len(pr) < 2:
             continue
         lr = np.log10([r['Re'] for r in pr]); cd = np.array([r['Cd'] for r in pr])
-        c1, c0 = np.polyfit(lr, cd, 1)
+        if ax in CONST_CD:   # Cd scatter is solver noise (unsteady wake), not a Re trend: use the mean
+            c1, c0 = 0.0, float(cd.mean())
+        else:
+            c1, c0 = np.polyfit(lr, cd, 1)
         med = [r for r in rows if r['axis'] == ax and r['mesh'] == 'medium' and r['kn'] == 6]
         c6 = [r for r in pr if r['kn'] == 6]
         corr = med[0]['D'] / c6[0]['D'] if med and c6 else 1.0
-        table[ax] = dict(fit=(c0, c1), corr=corr, A=pr[0]['A'], L=pr[0]['Re'] * 1.1883e-6 / pr[0]['V'],
+        table[ax] = dict(fit=(c0, c1), corr=corr, cd_min=float(cd.min()), cd_max=float(cd.max()), A=pr[0]['A'], L=pr[0]['Re'] * 1.1883e-6 / pr[0]['V'],
                          pts=[(r['kn'], r['D'] * corr, r['P'] * corr) for r in pr])
     kns = np.round(np.arange(0.5, 6.01, 0.5), 2)
     rho, nu = 1025.9, 1.1883e-6
@@ -79,6 +84,7 @@ def main():
                 cells.append(f'{D:.1f},{D * V:.1f},{Cd:.4f}')
             f.write(f'{k:g},{V:.4f},' + ','.join(cells) + '\n')
     json.dump({a: dict(Cd_fit_c0=t['fit'][0], Cd_fit_c1_per_log10Re=t['fit'][1], grid_correction=t['corr'],
+                       Cd_runs_min=t['cd_min'], Cd_runs_max=t['cd_max'], fit='constant (mean)' if a in CONST_CD else 'c0 + c1*log10(Re)',
                        A_proj_m2=t['A'], L_ref_m=t['L']) for a, t in table.items()},
               open(os.path.join(OUT, 'fit_coefficients.json'), 'w'), indent=1)
 

@@ -3,6 +3,9 @@
   "Cd_fit_c0": 0.30096667183819925,
   "Cd_fit_c1_per_log10Re": -0.02802718670632242,
   "grid_correction": 1.0,
+  "Cd_runs_min": 0.09759762372937947,
+  "Cd_runs_max": 0.11940439217381345,
+  "fit": "c0 + c1*log10(Re)",
   "A_proj_m2": 1.109808,
   "L_ref_m": 7.331445906311273
  },
@@ -10,7 +13,20 @@
   "Cd_fit_c0": 0.4274635991684796,
   "Cd_fit_c1_per_log10Re": -0.02259955108235745,
   "grid_correction": 1.0,
+  "Cd_runs_min": 0.2767230961949437,
+  "Cd_runs_max": 0.2943166979863001,
+  "fit": "c0 + c1*log10(Re)",
   "A_proj_m2": 6.18424,
   "L_ref_m": 1.480162096209824
+ },
+ "heave": {
+  "Cd_fit_c0": 0.668286949314007,
+  "Cd_fit_c1_per_log10Re": 0.0,
+  "grid_correction": 1.0,
+  "Cd_runs_min": 0.6269716059669511,
+  "Cd_runs_max": 0.6975157280261178,
+  "fit": "constant (mean)",
+  "A_proj_m2": 10.29888,
+  "L_ref_m": 0.9041501032188535
  }
 }
