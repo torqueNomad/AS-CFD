@@ -2,7 +2,7 @@
  "surge": {
   "Cd_fit_c0": 0.30096667183819925,
   "Cd_fit_c1_per_log10Re": -0.02802718670632242,
-  "grid_correction": 1.0,
+  "grid_correction": 0.9456740979601003,
   "Cd_runs_min": 0.09759762372937947,
   "Cd_runs_max": 0.11940439217381345,
   "fit": "c0 + c1*log10(Re)",
@@ -12,7 +12,7 @@
  "sway": {
   "Cd_fit_c0": 0.4274635991684796,
   "Cd_fit_c1_per_log10Re": -0.02259955108235745,
-  "grid_correction": 1.0,
+  "grid_correction": 0.9925464312343609,
   "Cd_runs_min": 0.2767230961949437,
   "Cd_runs_max": 0.2943166979863001,
   "fit": "c0 + c1*log10(Re)",
