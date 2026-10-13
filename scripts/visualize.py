@@ -41,6 +41,22 @@ def ring_seeds(c, others, ext, scales, n):
     return pv.PolyData(np.array(g))
 
 
+def row_seeds(c, others, ext, nrows, ncols, pad=(0.35, 0.25)):
+    """Parallel rows (a rake) in the upstream plane: rows along others[0], stacked along others[1],
+    upper half only (the lower half is hidden by the mid-plane backdrop)."""
+    g = []
+    for w in np.linspace(0.12, ext[others[1]] / 2 + pad[1], nrows):
+        for u in np.linspace(-ext[others[0]] / 2 - pad[0], ext[others[0]] / 2 + pad[0], ncols):
+            p = c.copy(); p[others[0]] = u; p[others[1]] = w; g.append(p)
+    return pv.PolyData(np.array(g))
+
+
+def seeds_for(axis, c, others, ext):
+    if axis == 'surge':   # parallel rows across the bow
+        return row_seeds(c, others, ext, nrows=3, ncols=20, pad=(0.5, 0.12))
+    return ring_seeds(c, others, ext, (0.35, 0.65, 0.9, 1.15), 40)
+
+
 def image_grid(lo, hi, npts):
     L = np.maximum(np.array(hi) - np.array(lo), 1e-9)
     h = (np.prod(L[L > 1e-6]) / npts) ** (1 / max(1, (L > 1e-6).sum()))
@@ -80,7 +96,7 @@ def main(run):
     img = image_grid(lo, hi, 4.5e6).sample(vol, pass_point_data=False)
     U = img.point_data['U'].copy(); U[img.point_data['vtkValidPointMask'] == 0] = 0; img.point_data['U'] = U
     seed_c = np.zeros(3); seed_c[a] = ext[a] / 2 + 1.0
-    src = ring_seeds(seed_c, others, ext, (0.35, 0.65, 0.9, 1.15), 40)
+    src = seeds_for(meta['axis'], seed_c, others, ext)
     sl = img.streamlines_from_source(src, vectors='U', integrator_type=45, integration_direction='forward',
                                      initial_step_length=0.2, min_step_length=0.01, max_step_length=0.5,
                                      max_steps=20000, max_error=1e-6, max_length=40.0, terminal_speed=1e-4)
