@@ -67,8 +67,8 @@ def main():
         else:
             c1, c0 = np.polyfit(lr, cd, 1)
         med = [r for r in rows if r['axis'] == ax and r['mesh'] == 'medium' and r['kn'] == 6]
-        c6 = [r for r in pr if r['kn'] == 6]
-        corr = med[0]['D'] / c6[0]['D'] if med and c6 else 1.0
+        # grid correction = medium-mesh Cd / coarse-mesh fitted Cd, both at 6 kn
+        corr = med[0]['Cd'] / (c0 + c1 * np.log10(med[0]['Re'])) if med else 1.0
         table[ax] = dict(fit=(c0, c1), corr=corr, cd_min=float(cd.min()), cd_max=float(cd.max()), A=pr[0]['A'], L=pr[0]['Re'] * 1.1883e-6 / pr[0]['V'],
                          pts=[(r['kn'], r['D'] * corr, r['P'] * corr) for r in pr])
     kns = np.round(np.arange(0.5, 6.01, 0.5), 2)

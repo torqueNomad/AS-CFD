@@ -2,7 +2,7 @@
  "surge": {
   "Cd_fit_c0": 0.30096667183819925,
   "Cd_fit_c1_per_log10Re": -0.02802718670632242,
-  "grid_correction": 0.9456740979601003,
+  "grid_correction": 0.9520769221691416,
   "Cd_runs_min": 0.09759762372937947,
   "Cd_runs_max": 0.11940439217381345,
   "fit": "c0 + c1*log10(Re)",
@@ -12,7 +12,7 @@
  "sway": {
   "Cd_fit_c0": 0.4274635991684796,
   "Cd_fit_c1_per_log10Re": -0.02259955108235745,
-  "grid_correction": 0.9925464312343609,
+  "grid_correction": 0.9856934668775371,
   "Cd_runs_min": 0.2767230961949437,
   "Cd_runs_max": 0.2943166979863001,
   "fit": "c0 + c1*log10(Re)",
@@ -22,7 +22,7 @@
  "heave": {
   "Cd_fit_c0": 0.668286949314007,
   "Cd_fit_c1_per_log10Re": 0.0,
-  "grid_correction": 1.0,
+  "grid_correction": 0.933031619668479,
   "Cd_runs_min": 0.6269716059669511,
   "Cd_runs_max": 0.6975157280261178,
   "fit": "constant (mean)",
