@@ -89,7 +89,7 @@ A copy of the dictionaries (`system/`, `constant/`, `0.orig/`) of the surge, 6 k
 | A13 | **Hydraulic power = drag × speed** (power delivered to the water). | Shaft or electrical power = P / (propulsive efficiency × motor efficiency), typically ÷0.3–0.6 for small thrusters. |
 | A14 | **Intermediate speeds come from a Cd fit.** CFD was run at 1, 2, 4 and 6 kn. Other speeds come from Cd = c0 + c1·log10(Re) per axis. | Cd varies smoothly and weakly with Re at these Re. The fit error at the computed points is listed in the report. |
 | A15 | **Grid correction.** The speed sweep uses the coarse mesh, scaled by the medium/coarse drag ratio at 6 kn for each axis. A fine mesh was run for surge. | Limited by the 4-core machine. The coarse, medium and fine spread is reported as discretisation uncertainty. |
-| A16 | **Domain blockage** is 0.6 % (surge), 2.3 % (sway) and about 3.8 % (heave), with slip side walls. | Small. Not corrected, and it may over-predict sway and heave drag by up to about 3–5 %. |
+| A16 | **Domain blockage** is 0.6 % (surge), 2.3 % (sway) and 3.7 % (heave), with slip side walls. | Small. Not corrected, and it may over-predict sway and heave drag by up to about 3–5 %. |
 | A17 | **Only the body's own drag.** No thrusters, appendages, tether or cable, or interaction effects. | These are not in the CAD. |
 
 ## 4. Validation checks performed
