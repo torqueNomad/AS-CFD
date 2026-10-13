@@ -158,7 +158,7 @@ footer { border-top: 1px solid var(--border); margin-top: 48px; padding-top: 18p
     <li><b>Surge</b> (+Z, rounded end first) is friction-dominated: about 70 % of the drag is skin friction, and the flow stays attached to the stern. At 6 kn: {{D6_surge}} N, {{P6_surge}} kW.</li>
     <li><b>Sway</b> (+X) and <b>heave</b> (+Y) are bluff-body flows: 95–99 % of the drag is pressure drag from a wide separated wake. At 6 kn: sway {{D6_sway}} N ({{P6_sway}} kW), heave {{D6_heave}} N ({{P6_heave}} kW).</li>
     <li>Hydraulic power is drag × speed, the power delivered to the water. Thruster shaft or electrical power is higher: divide by the propulsive and motor efficiencies (typically 0.3–0.6 overall for small thrusters).</li>
-    <li>Values include the mesh correction from the medium-mesh runs ({{CORR}}).</li>
+    <li>Values include the mesh correction to the finest mesh of each axis ({{CORR}}).</li>
   </ul>
 </section>
 
@@ -200,11 +200,11 @@ footer { border-top: 1px solid var(--border); margin-top: 48px; padding-top: 18p
   <div class="eyebrow">04 · Verification</div><hr class="rule">
   <h2>Mesh sensitivity, convergence and a friction check</h2>
   <h3>Mesh sensitivity at 6 kn</h3>
-  <p>Three mesh levels with the same refinement topology and background cells of 0.64, 0.48 and 0.36 m (body surface cells about 20, 15 and 11 mm, three prism layers). Surge on coarse, medium and fine; sway and heave on coarse and medium. Speed sweeps were run on the coarse mesh and scaled by the medium/coarse ratio of each axis.</p>
+  <p>Three mesh levels with the same refinement topology and background cells of 0.64, 0.48 and 0.36 m (body surface cells about 20, 15 and 11 mm, three prism layers). Surge on coarse, medium and fine; sway and heave on coarse and medium. Speed sweeps were run on the coarse mesh and scaled to the finest mesh of each axis at 6 kn (fine for surge, medium for sway and heave).</p>
   <div class="tw"><table><thead><tr><th>Axis</th><th>Mesh</th><th class="num">Cells</th><th class="num">Drag [N]</th><th class="num">Oscillation (1σ)</th><th class="num">Cd</th><th class="num">vs coarse</th></tr></thead><tbody>{{GRID}}</tbody></table></div>
   {{GCI}}
   <h3>Iterative convergence</h3>
-  <p>Surge runs reached the residual targets (p 1e-5; U, k, ω 1e-6) in 520–620 iterations, with a drag oscillation below 0.1 %. Sway and heave never settle completely, because the separated wake is unsteady and a steady solver can only approximate it. They were run for 1300 iterations, and drag is averaged over the last 30 %. The 1σ oscillation is 1–3 %, but in heave at 4 kn the mean drifted by up to 8 % during the run. That drift is the main reason heave uses a constant-Cd fit.</p>
+  <p>Surge runs reached the residual targets (p 1e-5; U, k, ω 1e-6) in 520–750 iterations, with a drag oscillation below 0.2 %. Sway and heave never settle completely, because the separated wake is unsteady and a steady solver can only approximate it. They were run for 1300 iterations, and drag is averaged over the last 30 %. The 1σ oscillation is 1–3 %, but in heave at 4 kn the mean drifted by up to 8 % during the run. That drift is the main reason heave uses a constant-Cd fit.</p>
   <h3>Independent friction check (surge)</h3>
   <p>The CFD viscous (skin-friction) drag in surge compared with the ITTC-1957 correlation line, C<sub>F</sub> = 0.075 / (log<sub>10</sub>Re − 2)², × ½ρV²S, with wetted area S = 27.56 m² and Re based on L = 7.33 m.</p>
   <div class="tw"><table><thead><tr><th class="num">Speed [kn]</th><th class="num">C<sub>F</sub> ITTC</th><th class="num">ITTC friction [N]</th><th class="num">CFD viscous [N]</th><th class="num">Difference</th></tr></thead><tbody>{{ITTC}}</tbody></table></div>
@@ -216,8 +216,8 @@ footer { border-top: 1px solid var(--border); margin-top: 48px; padding-top: 18p
 <section id="yplus">
   <div class="eyebrow">05 · Wall resolution</div><hr class="rule">
   <h2>y+ on the body</h2>
-  <p>y+ is the non-dimensional height of the first cell centre above the wall. Wall functions are designed for 30 &lt; y+ &lt; 300. The Spalding wall function used here (nutUSpaldingWallFunction) follows one continuous law of the wall, so it also remains valid in the buffer layer (5–30). Values are area-weighted on the coarse mesh; the medium mesh has cells 25 % smaller and correspondingly lower y+.</p>
-  <div class="tw"><table><thead><tr><th>Axis</th><th class="num">kn</th><th class="num">Mean y+</th><th class="num">5–95 % range</th><th class="num">% area 5–30</th><th class="num">% area 30–300</th><th class="num">% area &gt; 300</th></tr></thead><tbody>{{YP}}</tbody></table></div>
+  <p>y+ is the non-dimensional height of the first cell centre above the wall. Wall functions are designed for 30 &lt; y+ &lt; 300. The Spalding wall function used here (nutUSpaldingWallFunction) follows one continuous law of the wall, so it also remains valid in the buffer layer (5–30). Values are area-weighted. The coarse mesh covers the speed sweeps; at 6 kn the finer meshes bring 93–99.5 % of the surface into the 30–300 range (heave medium 80 %).</p>
+  <div class="tw"><table><thead><tr><th>Axis</th><th>Mesh</th><th class="num">kn</th><th class="num">Mean y+</th><th class="num">5–95 % range</th><th class="num">% area 5–30</th><th class="num">% area 30–300</th><th class="num">% area &gt; 300</th></tr></thead><tbody>{{YP}}</tbody></table></div>
   <div class="grid3">{{YPH}}</div>
   <div class="grid3" style="margin-top:12px">{{YPC}}</div>
 </section>
@@ -263,7 +263,7 @@ footer { border-top: 1px solid var(--border); margin-top: 48px; padding-top: 18p
     <tr><td class="num">A12</td><td>Sway and heave wakes are unsteady; reported drag is the time average of the steady solver's iterations.</td><td>Captures the mean drag only approximately. Shedding forces need URANS or DES.</td></tr>
     <tr><td class="num">A13</td><td>Hydraulic power = drag × speed.</td><td>Power delivered to the water. Shaft or electrical power = P ÷ (propulsive × motor efficiency).</td></tr>
     <tr><td class="num">A14</td><td>Intermediate speeds come from a Cd fit through the 1, 2, 4 and 6 kn runs.</td><td>Cd varies smoothly and weakly with Re at these Re. Heave uses a constant mean Cd.</td></tr>
-    <tr><td class="num">A15</td><td>Speed sweeps on the coarse mesh, scaled by each axis's medium-mesh correction at 6 kn.</td><td>Limited by the 4-core machine. The mesh spread is reported as discretisation uncertainty.</td></tr>
+    <tr><td class="num">A15</td><td>Speed sweeps on the coarse mesh, scaled to the finest mesh of each axis at 6 kn (fine for surge, medium for sway and heave).</td><td>Limited by the 4-core machine. The mesh spread is reported as discretisation uncertainty.</td></tr>
     <tr><td class="num">A16</td><td>Domain blockage 0.6–3.7 % with slip side walls, uncorrected.</td><td>May over-predict sway and heave drag by a few percent.</td></tr>
     <tr><td class="num">A17</td><td>Body only: no thrusters, appendages, tether or interaction effects.</td><td>Not present in the supplied CAD.</td></tr>
   </tbody></table></div>
@@ -273,7 +273,7 @@ footer { border-top: 1px solid var(--border); margin-top: 48px; padding-top: 18p
   <div class="eyebrow">08 · Uncertainty</div><hr class="rule">
   <h2>How far to trust each number</h2>
   <div class="tw"><table><thead><tr><th>Axis</th><th>Numerical (measured here)</th><th>Model form (engineering judgement)</th><th>Use the result as</th></tr></thead><tbody>
-    <tr><td><span class="sw" style="background:var(--s-surge)"></span>Surge</td><td>Mesh spread about 5 %; iterative below 0.1 %; friction within a few % of ITTC-1957.</td><td>Attached flow, well suited to RANS: about ±10 %.</td><td>Design value; add a fouling and appendage margin.</td></tr>
+    <tr><td><span class="sw" style="background:var(--s-surge)"></span>Surge</td><td>Fine-grid convergence index about 3.5 % (three meshes, monotonic); iterative below 0.2 %; friction within a few % of ITTC-1957.</td><td>Attached flow, well suited to RANS: about ±10 %.</td><td>Design value; add a fouling and appendage margin.</td></tr>
     <tr><td><span class="sw" style="background:var(--s-sway)"></span>Sway</td><td>Mesh spread about 1 %; oscillation 1–2 %; Cd varies 6 % across speeds.</td><td>Separated bluff-body wake, steady RANS: about ±20 %.</td><td>Sizing estimate; confirm with a tow or URANS test if critical.</td></tr>
     <tr><td><span class="sw" style="background:var(--s-heave)"></span>Heave</td><td>Mesh spread about 7–11 %; mean drift up to 8 %; Cd scatter ±5 %.</td><td>Large separated wake behind a broad face: about ±25 %.</td><td>Sizing estimate; most uncertain axis.</td></tr>
   </tbody></table></div>

@@ -76,7 +76,7 @@ def main():
         row = [r for r in table if r['speed_kn'] == '6'][0]
         six[ax] = dict(D=float(row[f'{ax}_drag_N']), P=float(row[f'{ax}_power_W']), Cd=float(row[f'{ax}_Cd']),
                        A=fit[ax]['A_proj_m2'], cdmin=fit[ax]['Cd_runs_min'], cdmax=fit[ax]['Cd_runs_max'])
-        rm = R.get((ax, 'medium', 6.0)) or R.get((ax, 'coarse', 6.0))
+        rm = R.get((ax, 'fine', 6.0)) or R.get((ax, 'medium', 6.0)) or R.get((ax, 'coarse', 6.0))
         six[ax]['pf'] = f"{rm['D_pressure'] / rm['D'] * 100:.0f} % / {rm['D_viscous'] / rm['D'] * 100:.0f} %"
 
     # ---- grid study
@@ -139,9 +139,9 @@ def main():
         f'<td class="num">{"–" if m == "coarse" else f"{(D / [g for g in grid_rows if g[0] == ax and g[1] == "coarse"][0][3] - 1) * 100:+.1f} %"}</td></tr>'
         for ax, m, c, D, sd, Cd in grid_rows)
     yp_html = ''.join(
-        f'<tr><td>{AXN[r["axis"]][0]}</td><td class="num">{float(r["speed_kn"]):g}</td><td class="num">{r["yplus_area_avg"]}</td>'
+        f'<tr><td>{AXN[r["axis"]][0]}</td><td>{r["mesh"]}</td><td class="num">{float(r["speed_kn"]):g}</td><td class="num">{r["yplus_area_avg"]}</td>'
         f'<td class="num">{r["yplus_p05"]}–{r["yplus_p95"]}</td><td class="num">{r["area_pct_5_30"]}</td><td class="num">{r["area_pct_30_300"]}</td>'
-        f'<td class="num">{r["area_pct_gt300"]}</td></tr>' for r in yp if r['mesh'] == 'coarse')
+        f'<td class="num">{r["area_pct_gt300"]}</td></tr>' for r in sorted(yp, key=lambda r: (AXES.index(r['axis']), ['coarse', 'medium', 'fine'].index(r['mesh']), float(r['speed_kn']))))
     runs_html = ''.join(
         f'<tr><td>{AXN[r["axis"]][0]}</td><td>{r["mesh"]}</td><td class="num">{r["kn"]:g}</td><td class="num">{r["Re"]:.2e}</td>'
         f'<td class="num">{fmt_n(r["D"], 1)}</td><td class="num">{fmt_n(r["D_pressure"], 1)}</td><td class="num">{fmt_n(r["D_viscous"], 1)}</td>'
@@ -154,10 +154,11 @@ def main():
         Cf = 0.075 / (math.log10(r['Re']) - 2) ** 2; Df = 0.5 * rho * r['V'] ** 2 * S * Cf
         ittc.append(f'<tr><td class="num">{r["kn"]:g}</td><td class="num">{Cf:.5f}</td><td class="num">{Df:,.1f}</td>'
                     f'<td class="num">{r["D_viscous"]:,.1f}</td><td class="num">{(r["D_viscous"] / Df - 1) * 100:+.1f} %</td></tr>')
-    sm = R.get(('surge', 'medium', 6.0))
-    if sm:
+    for mm in ('medium', 'fine'):
+        sm = R.get(('surge', mm, 6.0))
+        if not sm: continue
         Cf = 0.075 / (math.log10(sm['Re']) - 2) ** 2; Df = 0.5 * rho * sm['V'] ** 2 * S * Cf
-        ittc.append(f'<tr><td class="num">6 (medium)</td><td class="num">{Cf:.5f}</td><td class="num">{Df:,.1f}</td>'
+        ittc.append(f'<tr><td class="num">6 ({mm})</td><td class="num">{Cf:.5f}</td><td class="num">{Df:,.1f}</td>'
                     f'<td class="num">{sm["D_viscous"]:,.1f}</td><td class="num">{(sm["D_viscous"] / Df - 1) * 100:+.1f} %</td></tr>')
 
     gci_html = ''

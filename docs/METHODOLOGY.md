@@ -65,7 +65,7 @@ These are thin wrappers that source the OpenFOAM v2512 environment. `mesh_case.s
 - Averages D over the **last 30 %** of iterations. The standard deviation over the same window is reported as `drag_std_N`.
 - Computes Cd = D / (½ ρ V² A_proj), P = D·V and Re = V·L_axis/ν.
 - Fits Cd = c0 + c1·log10(Re) to the surge and sway speed sweeps. For heave it uses a constant Cd equal to the mean of the four runs, because the heave Cd scatters ±5 % between speeds with no Reynolds trend (the separated wake wanders in the steady solver; drift up to 8 % within the 4 kn run).
-- Multiplies by the grid correction: medium-mesh Cd / coarse-mesh fitted Cd, both at 6 kn (surge −4.8 %, sway −1.4 %, heave −6.7 %). It then evaluates the result from 0.5 to 6 kn in 0.5 kn steps.
+- Multiplies by the grid correction: finest-mesh Cd / coarse-mesh fitted Cd, both at 6 kn (surge −7.5 % to the fine mesh, sway −1.4 %, heave −6.7 % to the medium mesh). It then evaluates the result from 0.5 to 6 kn in 0.5 kn steps.
 - Writes the CSV and JSON tables and the plots.
 
 ### `openfoam_case_example/`
