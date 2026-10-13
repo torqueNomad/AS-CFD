@@ -1,0 +1,19 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location "0";
+    object      omega;
+}
+
+dimensions [0 0 -1 0 0 0 0];
+internalField uniform 120.26627933471346;
+boundaryField
+{
+    #includeEtc "caseDicts/setConstraintTypes"
+    inlet  { type fixedValue; value uniform 120.26627933471346; }
+    outlet { type inletOutlet; inletValue uniform 120.26627933471346; value uniform 120.26627933471346; }
+    sides  { type slip; }
+    body   { type omegaWallFunction; value uniform 120.26627933471346; }
+}
