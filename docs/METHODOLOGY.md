@@ -98,3 +98,11 @@ A copy of the dictionaries (`system/`, `constant/`, `0.orig/`) of the surge, 6 k
 - **y+ on the body** is listed per run in `runs_raw.csv`.
 - **Independent friction check:** the CFD viscous drag in surge is compared with the ITTC-1957 line, C_F = 0.075/(log10 Re − 2)², × ½ρV²S with S = 27.56 m².
 - **Mesh sensitivity:** coarse, medium and fine meshes for surge, and coarse and medium for sway and heave, all at 6 kn.
+
+## 5. y+ (wall resolution)
+`scripts/yplus_report.py` reads the OpenFOAM `yPlus` field on the body (first-cell-centre y+) for every run. It writes:
+- `results/yplus_summary.csv`: minimum, maximum, area-weighted mean, the 5th/50th/95th area-weighted percentiles, and the % of wetted area in each wall region (<5 viscous sublayer, 5–30 buffer, 30–300 log layer, >300).
+- `results/figures/yplus/hist_<axis>_<mesh>.png`: area-weighted y+ histograms, one curve per speed.
+- `results/figures/yplus/yplus_<axis>_<mesh>_<kn>kn.png`: y+ contours on the body at 1 and 6 kn.
+
+How to read it: wall functions are designed for 30 < y+ < 300, and `nutUSpaldingWallFunction` (Spalding's continuous law of the wall) also stays valid in the buffer and viscous regions. y+ rises roughly in proportion to speed. At 6 kn in sway, part of the windward face exceeds y+ 300. At Re about 4×10⁶ the log layer extends beyond y+ 300, so this is acceptable, and the medium-mesh run (cells 25 % smaller) quantifies its effect on drag.
