@@ -110,6 +110,8 @@ def main():
         an = os.path.join(RES, 'animations')
         A[ax]['v3d'] = vid(os.path.join(an, f'anim3d_{tag}.mp4'), f'v3d_{ax}.mp4') if os.path.exists(os.path.join(an, f'anim3d_{tag}.mp4')) else None
         A[ax]['vcp'] = vid(os.path.join(an, f'anim_cp_{tag}.mp4'), f'vcp_{ax}.mp4') if os.path.exists(os.path.join(an, f'anim_cp_{tag}.mp4')) else None
+        dev = os.path.join(RES, 'animations', f'anim_development_{ax}_2d.mp4')
+        A[ax]['vdev'] = vid(dev, f'vdev_{ax}.mp4') if os.path.exists(dev) else None
         A[ax]['vsl'] = [vid(p, f'vsl_{ax}_' + os.path.basename(p).split('_')[2] + '.mp4')
                         for p in sorted(glob.glob(os.path.join(an, f'anim_slice_*_{tag}.mp4')))]
         A[ax]['yph'] = img(os.path.join(RES, 'figures', 'yplus', f'hist_{ax}_coarse.png'), f'yph_{ax}.webp', 1100)
@@ -177,7 +179,8 @@ def main():
     for ax in AXES:
         a = A[ax]
         sl_imgs = ''.join(image(s, f'{AXN[ax][0]} 6 kn: mid-plane slice. Top: speed |U|/V with streamlines. Bottom: pressure coefficient Cp.', 'wide') for s in a['slices'])
-        sl_vids = ''.join(video(v, f'{AXN[ax][0]} 6 kn: particles carried by the in-plane velocity on a mid-plane.', 'wide') for v in a['vsl'])
+        dev_vid = video(a['vdev'], f'{AXN[ax][0]} 6 kn: how the speed field develops after an impulsive start from rest. Illustration from a separate 2-D unsteady RANS run of the mid-span section (z = 0); not used for the drag numbers.', 'wide') if a['vdev'] else ''
+        sl_vids = dev_vid + ''.join(video(v, f'{AXN[ax][0]} 6 kn: particles carried by the in-plane velocity on a mid-plane.', 'wide') for v in a['vsl'])
         tabs.append(f'''
       <div class="tabpanel" id="tab-{ax}" role="tabpanel" aria-labelledby="tb-{ax}" {'hidden' if ax != 'surge' else ''}>
         <div class="grid2">
@@ -188,7 +191,7 @@ def main():
           {video(a['vcp'], f'{AXN[ax][0]} 6 kn: surface pressure coefficient, rotating view.')}
           {image(a['cp'], f'{AXN[ax][0]} 6 kn: surface pressure coefficient Cp, four views.')}
         </div>
-        <p class="note">Rendered from the {a['mesh']}-mesh solution. Particles follow the converged steady (time-averaged) velocity field; they show where water goes on average, not unsteady vortex shedding.</p>
+        <p class="note">Rendered from the {a['mesh']}-mesh solution. Particles follow the converged steady (time-averaged) velocity field; they show where water goes on average, not unsteady vortex shedding.{' The development video is a separate 2-D unsteady run: it shows when and how the wake forms, but a 2-D section cannot give the 3-D drag.' if a.get('vdev') else ''}</p>
       </div>''')
 
     tiles = ''.join(f'''
