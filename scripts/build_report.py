@@ -110,8 +110,8 @@ def main():
         an = os.path.join(RES, 'animations')
         A[ax]['v3d'] = vid(os.path.join(an, f'anim3d_{tag}.mp4'), f'v3d_{ax}.mp4') if os.path.exists(os.path.join(an, f'anim3d_{tag}.mp4')) else None
         A[ax]['vcp'] = vid(os.path.join(an, f'anim_cp_{tag}.mp4'), f'vcp_{ax}.mp4') if os.path.exists(os.path.join(an, f'anim_cp_{tag}.mp4')) else None
-        dev = os.path.join(RES, 'animations', f'anim_development_{ax}_2d.mp4')
-        A[ax]['vdev'] = vid(dev, f'vdev_{ax}.mp4') if os.path.exists(dev) else None
+        A[ax]['vdev'] = [('_'.join(os.path.basename(p).split('_')[2:4]), vid(p, 'vdev_' + '_'.join(os.path.basename(p).split('_')[2:4]) + '.mp4'))
+                         for p in sorted(glob.glob(os.path.join(RES, 'animations', f'anim_development_{ax}_*_2d.mp4')))]
         A[ax]['vsl'] = [vid(p, f'vsl_{ax}_' + os.path.basename(p).split('_')[2] + '.mp4')
                         for p in sorted(glob.glob(os.path.join(an, f'anim_slice_*_{tag}.mp4')))]
         A[ax]['yph'] = img(os.path.join(RES, 'figures', 'yplus', f'hist_{ax}_coarse.png'), f'yph_{ax}.webp', 1100)
@@ -179,7 +179,7 @@ def main():
     for ax in AXES:
         a = A[ax]
         sl_imgs = ''.join(image(s, f'{AXN[ax][0]} 6 kn: mid-plane slice. Top: speed |U|/V with streamlines. Bottom: pressure coefficient Cp.', 'wide') for s in a['slices'])
-        dev_vid = video(a['vdev'], f'{AXN[ax][0]} 6 kn: how the speed field develops after an impulsive start from rest. Illustration from a separate 2-D unsteady RANS run of the mid-span section (z = 0); not used for the drag numbers.', 'wide') if a['vdev'] else ''
+        dev_vid = ''.join(video(v, f'{AXN[ax][0]} 6 kn, plane {pn[-2]} = 0: how the speed field and flow lines develop after an impulsive start from rest. Illustration from a separate 2-D unsteady RANS run of this mid-plane section; not used for the drag numbers.', 'wide') for pn, v in a['vdev'])
         sl_vids = dev_vid + ''.join(video(v, f'{AXN[ax][0]} 6 kn: particles carried by the in-plane velocity on a mid-plane.', 'wide') for v in a['vsl'])
         tabs.append(f'''
       <div class="tabpanel" id="tab-{ax}" role="tabpanel" aria-labelledby="tb-{ax}" {'hidden' if ax != 'surge' else ''}>
