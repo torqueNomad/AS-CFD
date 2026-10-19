@@ -21,8 +21,8 @@ PLANES = {  # n = plane normal axis, a = flow axis, j = cross-flow axis (0 x, 1 
 FH = "FoamFile\n{\n    version 2.0;\n    format ascii;\n    class %s;\n    %sobject %s;\n}\n"
 
 
-def sh(case, cmd, log):
-    r = subprocess.run(['bash', '-c', f'{OF}; cd {case}; {cmd}'], stdout=open(os.path.join(case, log), 'w'), stderr=subprocess.STDOUT)
+def sh(case, cmd, log, mode='w'):
+    r = subprocess.run(['bash', '-c', f'{OF}; cd {case}; {cmd}'], stdout=open(os.path.join(case, log), mode), stderr=subprocess.STDOUT)
     return r.returncode
 
 
@@ -90,6 +90,8 @@ def build_mesh(case, ol, per, use_bl):
 
 def setup(plane, mesh_only=False):
     pl = PLANES[plane]; case = os.path.join(BASE, plane); V = 6 * KN
+    if not mesh_only and os.path.exists(os.path.join(case, 'case2d.json')) and any(d.startswith('processor') for d in os.listdir(case)):
+        print(f'{plane}: resuming existing case', flush=True); return case
     shutil.rmtree(case, ignore_errors=True); os.makedirs(case)
     ol, per = outline(pl)
     wf(os.path.join(case, 'system/controlDict'), 'controlDict', 'application pimpleFoam;\nstartFrom startTime; startTime 0; stopAt endTime; endTime 1; deltaT 1; writeControl timeStep; writeInterval 1;\n')
@@ -161,8 +163,10 @@ relaxationFactors { equations { ".*" 1; } }
 
 def run(case):
     t0 = time.time()
-    sh(case, 'decomposePar -force', 'log.decompose')
-    rc = sh(case, 'mpirun --allow-run-as-root --oversubscribe -np 4 pimpleFoam -parallel', 'log.pimpleFoam')
+    if not any(d.startswith('processor') for d in os.listdir(case)):
+        sh(case, 'decomposePar -force', 'log.decompose')
+    cd = os.path.join(case, 'system/controlDict'); t = open(cd).read().replace('startFrom startTime;', 'startFrom latestTime;'); open(cd, 'w').write(t)
+    rc = sh(case, 'mpirun --allow-run-as-root --oversubscribe -np 4 pimpleFoam -parallel', 'log.pimpleFoam', 'a')
     sh(case, 'reconstructPar', 'log.reconstruct')
     shutil.rmtree(case, ignore_errors=True) if False else [shutil.rmtree(d, ignore_errors=True) for d in
         [os.path.join(case, x) for x in os.listdir(case) if x.startswith('processor')]]
